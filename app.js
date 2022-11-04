@@ -83,13 +83,7 @@ app.use((req, res, next) => {
 })
 
 // ******* ROUTES *******
-app.get('/fakeUser', async(req, res) => {
-    const user = new User({email: 'tylerspear@gmail.com', username: 'toot'})
-    const newUser = await User.register(user, 'chicken')
-    res.send(newUser)
-})
 //using the campground and reviews routes on the specificed listeners
-
 app.use('/campgrounds', campgroundRoutes)
 app.use('/campgrounds/:id/reviews', reviewRoutes)
 app.use('/', userRoutes)
