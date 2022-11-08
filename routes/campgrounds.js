@@ -3,7 +3,7 @@ const router = express.Router()
 const catchAsync = require('../utils/catchAsync')
 const ExpressError = require('../utils/ExpressError')
 const Campground = require('../models/campground')
-const {isLoggedIn, isAuthor, validateCampground} = require('../middleware')
+const { isLoggedIn, isAuthor, validateCampground } = require('../middleware')
 
 
 // ******* CAMPGROUND INDEX *******
@@ -19,7 +19,6 @@ router.get('/new', isLoggedIn, (req, res) => {
 
 // ******* NEW FORM ENDPOINT *******
 router.post('/', isLoggedIn, validateCampground, catchAsync(async (req, res, next) => {
-    // if(!req.body.campground) throw new ExpressError('Invalid Campground Data', 400)
     const campground = new Campground(req.body.campground)
     campground.author = req.user._id
     await campground.save()
@@ -30,7 +29,15 @@ router.post('/', isLoggedIn, validateCampground, catchAsync(async (req, res, nex
 // ******* SHOW SINGLE CAMPGROUND *******
 router.get('/:id', catchAsync(async (req, res) => {
     const {id} = req.params
-    const campground = await Campground.findById(id).populate('reviews').populate('author')
+    const campground = await Campground.findById(id).populate({
+        //populate all the reviews on the campground
+        path:'reviews',
+        //populate the author for the review
+        populate: {
+            path: 'author'
+        }
+        //populate the author of the campground
+    }).populate('author')
     if(!campground){
         req.flash('error', 'Cannot find that campground')
         res.redirect('/campgrounds')
@@ -50,9 +57,13 @@ router.get('/:id/edit', isLoggedIn, isAuthor, catchAsync(async (req, res) => {
 }))
 
 router.put('/:id', isLoggedIn, isAuthor, validateCampground, catchAsync(async (req, res) => {
+    //pull out the campground ID from the request
     const {id} = req.params
+    //update that ID with the new request body
     const campground = await Campground.findByIdAndUpdate(id, {...req.body.campground})
+    //if successful, flash a message
     req.flash('success', 'Successfully updated campground')
+    //redirect to the newly created campground
     res.redirect(`/campgrounds/${campground._id}`) 
 }))
 
