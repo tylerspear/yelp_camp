@@ -5,10 +5,15 @@ const ExpressError = require('../utils/ExpressError')
 const Campground = require('../models/campground')
 const { isLoggedIn, isAuthor, validateCampground } = require('../middleware')
 const campgrounds = require('../controllers/campgrounds')
+const multer = require('multer')
+const upload = multer({ dest: 'uploads/' })
 
 router.route('/')
     .get(catchAsync(campgrounds.index))
-    .post(isLoggedIn, validateCampground, catchAsync(campgrounds.createCampground))
+    // .post(isLoggedIn, validateCampground, catchAsync(campgrounds.createCampground))
+    .post(upload.array('image'), (req, res) => {
+        res.send(req.body, req.file)
+    })
 
 // render new campground form
 router.get('/new', isLoggedIn, campgrounds.renderNewForm)
