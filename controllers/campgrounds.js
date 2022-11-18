@@ -52,6 +52,9 @@ module.exports.updateCampground = async (req, res) => {
     const {id} = req.params
     //update that ID with the new request body
     const campground = await Campground.findByIdAndUpdate(id, {...req.body.campground})
+    const imgs = req.files.map(f => ({ url: f.path, filename: f.filename }))
+    campground.images.push(...imgs)
+    await campground.save()
     //if successful, flash a message
     req.flash('success', 'Successfully updated campground')
     //redirect to the newly created campground
