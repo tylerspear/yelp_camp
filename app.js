@@ -16,6 +16,7 @@ const flash = require('connect-flash')
 const passport = require('passport')
 const LocalStrategy = require('passport-local')
 const User = require('./models/user')
+const mongoSanitize = require('express-mongo-sanitize')
 
 //requiring routes
 const userRoutes = require('./routes/users')
@@ -53,13 +54,17 @@ app.use(methodOverride('_method'))
 //setting the public directory which will hold all stylesheets and scripts
 app.use(express.static(path.join(__dirname, 'public')))
 
+app.use(mongoSanitize())
+
 //express-session setup
 const sessionConfig = {
+    name: 'yelp-cookie',
     secret: 'keyboard cat',
     resave: false,
     saveUninitialized: true,
     cookie: {
         httpOnly: true,
+        // secure: true,
         //expires in a week
         expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
         maxAge: 1000 * 60 * 60 * 24 * 7
